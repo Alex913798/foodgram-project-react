@@ -70,7 +70,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         # Это параметр воркфлоу, указывающий нужную версию Node.js
-        node-version: 18
+        node-version: 13.12.0
 
     - name: Install dependencies
       # Эта команда устанавливает зависимости для фронтенда
@@ -119,7 +119,7 @@ jobs:
       - name: Push to DockerHub
         uses: docker/build-push-action@v4
         with:
-          context: ./nginx/
+          context: ./gateway/
           push: true
           # Тут вместо username должен быть ваш логин на Docker Hub
           tags: alexyandpract/foodgram_gateway:latest
