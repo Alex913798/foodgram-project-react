@@ -43,6 +43,8 @@ class CustomUserSerialiser(UserSerializer):
 
 
 class RecipeBriefSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -143,7 +145,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
                                           source='ingredientrecipes')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField(required=False)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
