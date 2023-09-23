@@ -146,13 +146,17 @@ class RecipeGetSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField()
+    image_url = serializers.SerializerMethodField(
+        'get_image_url',
+        read_only=True,
+    )
 
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients',
                   'is_favorited', 'is_in_shopping_cart', 'name',
-                  'image', 'text', 'cooking_time')
-        read_only_fields = ('tags', 'author', 'ingredients', )
+                  'image', 'text', 'cooking_time', 'image_url')
+        read_only_fields = ('tags', 'author', 'ingredients', 'image_url')
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
@@ -167,6 +171,11 @@ class RecipeGetSerializer(serializers.ModelSerializer):
                 and ShoppingList.objects.filter(
                     user=request.user, recipe=obj
                 ).exists())
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
