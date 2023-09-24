@@ -31,8 +31,8 @@ class Recipe (models.Model):
         help_text='Напишите рецепт'
     )
     image = models.ImageField(
-        upload_to='food/images/',
-        default=None
+        upload_to='food/',
+        blank=True
     )
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='recipes')
