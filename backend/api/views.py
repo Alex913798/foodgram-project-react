@@ -5,15 +5,14 @@ from api.serializers import (FavoriteSerializer, FollowSerializer,
                              RecipeCreateUpdateSerializer, RecipeGetSerializer,
                              ShoppingListSerializer, TagSerialiser,
                              UserFollowGetSerializer)
-from django.db.models import Sum
 from django.shortcuts import HttpResponse, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from food.models import Favorite, Ingredient, IngredientRecipe, Recipe, Tag
+from recipe.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+                           ShoppingList, Tag)
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from shopping_list_service.models import ShoppingList
 from users.models import Follow, User
 
 
@@ -123,17 +122,8 @@ class APIShoppingList (APIView):
 
 class APIShoppingListDownload (APIView):
     def get(self, request):
-        ingredients = IngredientRecipe.objects.filter(
-            recipe__shoppings__user=request.user
-        ).values(
-            'ingredient__name', 'ingredient__measurement_unit'
-        ).annotate(ingredient_amount=Sum('amount'))
-        shopping_list = ['Список покупок:\n']
-        for ingredient in ingredients:
-            name = ingredient['ingredient__name']
-            unit = ingredient['ingredient__measurement_unit']
-            amount = ingredient['ingredient_amount']
-            shopping_list.append(f'\n{name} - {amount}, {unit}')
+        user = request.user
+        shopping_list = IngredientRecipe.get(user)
         response = HttpResponse(shopping_list, content_type='text/plain')
         response['Content-Disposition'] = \
             'attachment; filename="shopping_cart.txt"'

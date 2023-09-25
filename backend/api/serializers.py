@@ -3,10 +3,10 @@ import base64
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from food.models import Favorite, Ingredient, IngredientRecipe, Recipe, Tag
+from recipe.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+                           ShoppingList, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from shopping_list_service.models import ShoppingList
 from users.models import Follow, User
 
 
@@ -209,12 +209,16 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
+        ingredient_recipe_list = []
         for ingredient in ingredients:
             current_ingredient = get_object_or_404(Ingredient,
                                                    id=ingredient.get('id'))
             amount = ingredient.get('amount')
-            IngredientRecipe.objects.create(ingredient=current_ingredient,
-                                            amount=amount, recipe=recipe)
+            ingredient_recipe_list.append(
+                IngredientRecipe(ingredient=current_ingredient,
+                                 amount=amount, recipe=recipe)
+            )
+        IngredientRecipe.objects.bulk_create(ingredient_recipe_list)
         return recipe
 
     def update(self, instance, validated_data):
@@ -224,12 +228,16 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         instance.tags.set(tags)
         IngredientRecipe.objects.filter(recipe=instance).delete()
         super().update(instance, validated_data)
+        ingredient_recipe_list = []
         for ingredient in ingredients:
             current_ingredient = get_object_or_404(Ingredient,
                                                    id=ingredient.get('id'))
             amount = ingredient.get('amount')
-            IngredientRecipe.objects.create(ingredient=current_ingredient,
-                                            amount=amount, recipe=instance)
+            ingredient_recipe_list.append(
+                IngredientRecipe(ingredient=current_ingredient,
+                                 amount=amount, recipe=instance)
+            )
+        IngredientRecipe.objects.bulk_create(ingredient_recipe_list)
         instance.save()
         return instance
 

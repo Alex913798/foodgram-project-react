@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class FoodConfig(AppConfig):
+class RecipeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'food'
+    name = 'recipe'
     verbose_name = 'Управление рецептами вкусной и полезной еды'
