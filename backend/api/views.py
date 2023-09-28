@@ -1,5 +1,5 @@
 from api.filters import RecipeFilter
-from api.permissions import AuthorAdmin, ReadOnly
+from api.permissions import AuthorAdminReadOnly
 from api.serializers import (FavoriteSerializer, FollowSerializer,
                              IngredientSerializer,
                              RecipeCreateUpdateSerializer, RecipeGetSerializer,
@@ -66,7 +66,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (AuthorAdmin,)
+    permission_classes = (AuthorAdminReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -75,11 +75,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return RecipeGetSerializer
         return RecipeCreateUpdateSerializer
-
-    def get_permissions(self):
-        if self.action == 'retrieve':
-            return (ReadOnly(),)
-        return super().get_permissions()
 
 
 class APIFavorite (APIView):
